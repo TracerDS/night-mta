@@ -2,10 +2,10 @@ project "Launcher"
 	language "C++"
 	kind "ConsoleApp"
 	targetname "launcher"
-    targetdir (projbuild())
-    objdir (projinter())
+    targetdir (buildpath('server'))
+    objdir (objpath('server'))
 
-	dependson { "Core" }
+	dependson { "Core", "SharedCore" }
 
     files {
 		"premake5.lua",
@@ -20,8 +20,8 @@ project "Launcher"
 	}
 
 	includedirs {
-		path.join(SOLUTION_DIR, 'Server')
+		path.join(SOLUTION_DIR)
 	}
 	libdirs {
-		builddir('Core')
+		buildpath('shared')
 	}

@@ -2,8 +2,8 @@ project "Core"
 	language "C++"
 	kind "SharedLib"
 	targetname "core"
-    targetdir (projbuild())
-    objdir (projinter())
+    targetdir (buildpath('server'))
+    objdir (objpath('server'))
 
     files {
 		"premake5.lua",
@@ -18,5 +18,5 @@ project "Core"
 	}
 	
 	includedirs {
-		path.join(SOLUTION_DIR, 'Server')
+		path.join(SOLUTION_DIR)
 	}

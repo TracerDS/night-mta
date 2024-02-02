@@ -10,18 +10,8 @@ if os.host() == 'windows' then
     PROJECT_NAME = '$(ProjectName)'
 end
 
-function builddir(path)
-    return ('%s/%s/%s/%s/%s'):format(SOLUTION_DIR, 'Build', CONFIGURATION, PLATFORM, path)
-end
-function interdir(path)
-    return ('!%s/%s/%s/%s/%s'):format(SOLUTION_DIR, 'VSObjects', CONFIGURATION, PLATFORM, path)
-end
-function projbuild()
-    return builddir(PROJECT_NAME)
-end
-function projinter()
-    return interdir(PROJECT_NAME)
-end
+function buildpath(p) return "%{wks.location}/../Bin/"..p.."/" end
+function objpath(p) return "%{wks.location}/../Build/"..p.."/" end
 
 workspace 'NightMTA'
     configurations { 'Debug', 'Release' }
@@ -60,6 +50,9 @@ workspace 'NightMTA'
         group 'Server'
         include 'Server/Core'
         include 'Server/Launcher'
-    
-        group 'Shared'
-        include 'Shared/Core'
+
+        group 'Vendor'
+        include 'vendors/detours'
+
+        group ''
+        include 'Shared'

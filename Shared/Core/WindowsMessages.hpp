@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WindowsHeader.hpp"
+#include <Shared/Core/WindowsHeader.hpp>
 
 namespace NightMTA::Shared {
 #ifdef _WIN32

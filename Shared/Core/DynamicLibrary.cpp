@@ -1,5 +1,5 @@
-#include <Core/DynamicLibrary.hpp>
-#include <Core/WindowsMessages.hpp>
+#include <Shared/Core/DynamicLibrary.hpp>
+#include <Shared/Core/WindowsMessages.hpp>
 #include <cstdio>
 
 namespace NightMTA::Shared {
@@ -53,7 +53,7 @@ namespace NightMTA::Shared {
             WinMessage msg(GetLastError());
 
             // Display the error message and exit the process
-            printf("Loading library %s failed; %s\n", szFilename, msg.c_str());
+            printf("Loading library %s failed (%s)\n", szFilename, msg.c_str());
         }
 #else
         m_hModule = dlopen(szFilename, RTLD_NOW);
@@ -61,10 +61,9 @@ namespace NightMTA::Shared {
         // Output error if needed
         if (!m_hModule) {
             const char* szError = dlerror();
+            fprintf(stderr, "Loading %s failed", szFilename);
             if (szError)
-                Print("%s\n", szError);
-            else
-                Print("Loading %s failed\n", szFilename);
+                fprintf(stderr, " (%s)\n", szError);
         }
 #endif
 
