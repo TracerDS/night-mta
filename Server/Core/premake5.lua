@@ -16,7 +16,3 @@ project "Core"
 		["Sources"] = "*.cpp",
 		["*"] = "premake5.lua"
 	}
-	
-	includedirs {
-		path.join(SOLUTION_DIR)
-	}

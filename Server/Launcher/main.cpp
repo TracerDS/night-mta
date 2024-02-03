@@ -20,9 +20,9 @@ int mainFunc(int argc, const char* argv[]) {
 		strLaunchDirectory = strLaunchDirectory.substr(0, offset);
 	}
 #ifdef _WIN32
-	if (!SharedUtil::Windows::IsWindows8OrGreater()) {
+	if (!NightMTA::SharedUtil::Windows::IsWindows8OrGreater()) {
 		printf("This version of MTA requires Windows 8 or later\n");
-		return;
+		return 1;
 	}
 #endif
 
@@ -36,10 +36,11 @@ int mainFunc(int argc, const char* argv[]) {
 				"* Error message: \"%s\"\n"
 				, exc.what()
 			);
+			return 1;
 		}
 	}
 
-	NightMTA::Shared::DynamicLibrary coreLib;
+	NightMTA::Shared::Core::DynamicLibrary coreLib;
 	if (!coreLib.Load(LIB_CORE)) {
 		printf(
 			"ERROR: Could not load %s\n"
@@ -48,7 +49,7 @@ int mainFunc(int argc, const char* argv[]) {
 			"* Check installed Microsoft Visual C++ Redistributable Package (x86).\n"
 #endif
 			, LIB_CORE);
-		return;
+		return 1;
 	}
 
 	// Grab the entrypoint
@@ -57,7 +58,7 @@ int mainFunc(int argc, const char* argv[]) {
 	Main_t* pfnEntryPoint = reinterpret_cast<Main_t*>(coreLib.GetProcAddr("Run"));
 	if (!pfnEntryPoint) {
 		printf("ERROR: Bad file: %s\n", LIB_CORE);
-		return;
+		return 1;
 	}
 	// Call it and return what it returns
 	return pfnEntryPoint(argc, argv);

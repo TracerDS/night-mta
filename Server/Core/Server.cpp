@@ -1,30 +1,45 @@
 #include <Server/Core/Server.hpp>
-#include <Shared/sdk/version.hpp>
-#include <Shared/sdk/SharedUtils/Windows.hpp>
 
-#include <cstring>
-#include <cstdio>
-#include <detours.h>
-#include <string>
+bool g_bSilent = false;
+bool g_bNoCurses = false;
+bool g_bNoTopBar = false;
+bool g_bNoCrashHandler = false;
 
-MTAEXPORT int Run(int argc, const char* argv[]) noexcept {
-    for (auto i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
-            printf(MTA_DM_FULL_STRING " v" MTA_DM_BUILDTAG_LONG "\n");
-            return 1;
-        }
+#ifndef MTA_WIN
+bool    g_bDaemonized = false;
+WINDOW* m_wndMenu = nullptr;
+WINDOW* m_wndInput = nullptr;
+constexpr bool IsCursesActive() noexcept { return m_wndInput != nullptr; }
+#else
+bool g_isChildProcess = false;
+HANDLE g_readyEvent = nullptr;
+#endif
+
+namespace NightMTA::Server::Core {
+    constexpr const char* szNetworkLibName = "net" MTA_LIB_SUFFIX MTA_LIB_EXTENSION;
+    constexpr const char* szXMLLibName = "xmll" MTA_LIB_SUFFIX MTA_LIB_EXTENSION;
+
+    Server::Server(
+#ifdef MTA_WIN
+        ThreadCommandQueue* pThreadCommandQueue
+#endif
+    ) noexcept :
+#ifdef MTA_WIN
+        m_pThreadCommandQueue(pThreadCommandQueue),
+#endif
+        m_pModManager(new ModManager(this))
+    {}
+
+    Server::~Server() noexcept {
+        // Destroy our stuff
+        delete m_pModManager;
     }
-#ifdef _WIN32
-    SetErrorMode(SEM_FAILCRITICALERRORS);
-#endif
 
-#ifdef MTA_x86
-    // Apply file hooks if not already done by the client
-    bool bSkipFileHooks = false;
-    for (int i = 1; i < argc; i++)
-        bSkipFileHooks |= std::string(argv[i]).Contains("--clientfeedback");
-
-    if (!bSkipFileHooks)
-        AddUtf8FileHooks();
-#endif
+    bool Server::IsRequestingExit() const noexcept {
+    #ifdef MTA_WIN
+        // cant be const. Need to move it somewhere
+        return m_pThreadCommandQueue->Process(nullptr);
+    #endif
+        return m_bRequestedQuit;
+    }
 }

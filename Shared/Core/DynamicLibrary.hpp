@@ -6,7 +6,7 @@
 using HMODULE = void*;
 #endif
 
-namespace NightMTA::Shared {
+namespace NightMTA::Shared::Core {
     class IDynamicLibrary {
     protected:
         HMODULE m_hModule;

@@ -31,6 +31,10 @@ workspace 'NightMTA'
     symbols 'On'
     flags 'MultiProcessorCompile'
 
+	includedirs {
+		path.join(SOLUTION_DIR)
+	}
+
     filter 'configurations:Debug'
         defines { 'MTA_DEBUG', '_DEBUG' }
         targetsuffix '_d'
@@ -51,8 +55,8 @@ workspace 'NightMTA'
         include 'Server/Core'
         include 'Server/Launcher'
 
-        group 'Vendor'
+        group 'Vendors'
         include 'vendors/detours'
 
-        group ''
+        group 'Shared'
         include 'Shared'
