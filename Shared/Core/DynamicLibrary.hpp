@@ -2,8 +2,8 @@
 
 #include <Shared/Core/WindowsHeader.hpp>
 
-#ifndef _WIN32
-using HMODULE = void*;
+#if MTA_LINUX
+    using HMODULE = void*;
 #endif
 
 namespace NightMTA::Shared::Core {

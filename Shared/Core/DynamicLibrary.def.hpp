@@ -1,8 +1,9 @@
+#include <Shared/sdk/SharedUtils/Defines.hpp>
 #include <Shared/Core/DynamicLibrary.hpp>
 #include <Shared/Core/WindowsMessages.hpp>
 #include <cstdio>
 
-namespace NightMTA::Shared {
+namespace NightMTA::Shared::Core {
 	DynamicLibrary::DynamicLibrary() noexcept {}
 	DynamicLibrary::~DynamicLibrary() noexcept {
 		this->Unload();
@@ -10,7 +11,7 @@ namespace NightMTA::Shared {
 
 	void DynamicLibrary::Unload() noexcept {
 		if (!this->m_hModule) return;
-#ifdef _WIN32
+#if MTA_WIN
 		FreeLibrary(this->m_hModule);
 #else
 		dlclose(this->m_hModule);
@@ -26,7 +27,7 @@ namespace NightMTA::Shared {
         if (!this->m_hModule)
             return nullptr;
         
-#ifdef _WIN32
+#if MTA_WIN
         auto pFunc = ::GetProcAddress(this->m_hModule, szProcName);
 #else
         char* szError = nullptr;
@@ -45,8 +46,8 @@ namespace NightMTA::Shared {
         this->Unload();
 
         // Load the new library
-#ifdef _WIN32
-        m_hModule = LoadLibraryEx(szFilename, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+#if MTA_WIN
+        m_hModule = LoadLibraryExA(szFilename, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
 
         // Failed?
         if (!m_hModule) {
@@ -61,7 +62,7 @@ namespace NightMTA::Shared {
         // Output error if needed
         if (!m_hModule) {
             const char* szError = dlerror();
-            fprintf(stderr, "Loading %s failed", szFilename);
+            fprintf(stderr, "Loading library %s failed", szFilename);
             if (szError)
                 fprintf(stderr, " (%s)\n", szError);
         }

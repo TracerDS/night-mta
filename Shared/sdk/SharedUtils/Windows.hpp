@@ -1,27 +1,31 @@
 #pragma once
 
-#ifdef _WIN32
+#include <Shared/sdk/SharedUtils/MTAPlatform.hpp>
+
+#if MTA_WIN == 1
+
 #include <Shared/Core/WindowsHeader.hpp>
-#include <Shared/sdk/SharedUtils/Defines.hpp>
+
+#include <Shared/sdk/SharedUtils/Misc.hpp>
+#include <Shared/sdk/SharedUtils/SString.hpp>
 
 namespace NightMTA::SharedUtil::Windows {
-    /*
-    * Thanks godot!
-    
-    String OS_Windows::get_version() const {
-	    RtlGetVersionPtr version_ptr = (RtlGetVersionPtr)GetProcAddress(GetModuleHandle("ntdll.dll"), "RtlGetVersion");
-	    if (version_ptr != nullptr) {
-		    RTL_OSVERSIONINFOW fow;
-		    ZeroMemory(&fow, sizeof(fow));
-		    fow.dwOSVersionInfoSize = sizeof(fow);
-		    if (version_ptr(&fow) == 0x00000000) {
-			    return vformat("%d.%d.%d", (int64_t)fow.dwMajorVersion, (int64_t)fow.dwMinorVersion, (int64_t)fow.dwBuildNumber);
-		    }
-	    }
-	    return "";
+    inline SString GetWindowsVersion() noexcept {
+        using RtlGetVersionPtr = HRESULT(WINAPI*)(OSVERSIONINFOA *lpVersionInformation);
+
+        auto RtlGetVersion = Misc::GetProcAddress<RtlGetVersionPtr>("ntdll.dll", "RtlGetVersion");
+        if (!RtlGetVersion)
+            return "";
+
+        OSVERSIONINFOA fow{ 0 };
+        fow.dwOSVersionInfoSize = sizeof(fow);
+
+        if (RtlGetVersion(&fow) != 0)
+            return "";
+
+        return SString("%d.%d.%d", fow.dwMajorVersion, fow.dwMinorVersion, fow.dwBuildNumber);
     }
-    
-    */
+
     bool IsWindowsVersionOrGreater(
         WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor
     ) noexcept {

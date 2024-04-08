@@ -3,17 +3,17 @@
 #include <Shared/Core/WindowsHeader.hpp>
 
 namespace NightMTA::Shared {
-#ifdef _WIN32
+#if MTA_WIN
     class WinMessage {
         static constexpr DWORD m_dwFlags = FORMAT_MESSAGE_ALLOCATE_BUFFER |
             FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
         static constexpr DWORD m_dwLangID = MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT);
 
-        char* m_lpBuffer;
+        char* m_lpBuffer{ 0 };
     public:
         WinMessage(const DWORD error) noexcept {
-            FormatMessage(this->m_dwFlags, nullptr, error, this->m_dwLangID,
-                this->m_lpBuffer, 0, nullptr);
+            FormatMessageA(m_dwFlags, nullptr, error, m_dwLangID,
+                m_lpBuffer, 0, nullptr);
         }
         ~WinMessage() noexcept {
             this->Free();
@@ -30,6 +30,5 @@ namespace NightMTA::Shared {
             this->m_lpBuffer = nullptr;
         }
     };
-
 #endif
 }

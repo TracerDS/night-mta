@@ -67,8 +67,8 @@
 #   define MTA_WIN 1
 #   define MTA_LINUX 0
 #else
-#   define MTA_LINUX 1
 #   define MTA_WIN 0
+#   define MTA_LINUX 1
 #endif
 
 #if defined(__x86_64__) || defined(_WIN64)
@@ -79,18 +79,18 @@
 #elif defined(__aarch64__)
 #   define MTA_x64 0
 #   define MTA_x86 0
-#   define MTA_arm 0
 #   define MTA_arm64 1
+#   define MTA_arm 0
 #elif defined(__arm__)
 #   define MTA_x64 0
 #   define MTA_x86 0
-#   define MTA_arm 1
 #   define MTA_arm64 0
+#   define MTA_arm 1
 #else
 #   define MTA_x64 0
 #   define MTA_x86 1
-#   define MTA_arm 0
 #   define MTA_arm64 0
+#   define MTA_arm 0
 #endif
 
 //
@@ -113,22 +113,10 @@
 //
 // Location of server crash dumps
 //
-#ifdef MTA_WIN
+#if MTA_WIN
     #define SERVER_DUMP_PATH    "dumps"
 #else
     #define SERVER_DUMP_PATH    "mods/deathmatch/dumps"
-#endif
-
-//
-// Stringize the result of expansion of a macro argument
-//
-#define MTA_STR_EXPAND(token) #token
-#define MTA_STR(token) MTA_STR_EXPAND(token)
-
-#if MTA_WIN
-#   define PATH_SEPERATOR "\\"
-#else
-#   define PATH_SEPERATOR "/"
 #endif
 
 #if MTA_WIN

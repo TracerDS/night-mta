@@ -3,23 +3,24 @@
 #include <filesystem>
 #include <string>
 
-#include <Shared/Core/DynamicLibrary.hpp>
-#include <Shared/Core/WindowsMessages.hpp>
+//#include <Shared/Core/DynamicLibrary.def.hpp>
+//#include <Shared/Core/WindowsMessages.hpp>
 #include <Shared/sdk/SharedUtils/Windows.hpp>
 #include <Shared/sdk/SharedUtils/Defines.hpp>
 #include <Shared/sdk/SharedUtils/MTAPlatform.hpp>
+//#include <Shared/sdk/SharedUtils/Path.hpp>
 
 #define LIB_CORE SERVER_BIN_PATH "core" MTA_LIB_SUFFIX MTA_LIB_EXTENSION
 
 namespace fs = std::filesystem;
-
+/*
 int mainFunc(int argc, const char* argv[]) {
 	std::string strLaunchDirectory = argv[0];
 	auto offset = strLaunchDirectory.find_last_of("/\\");
 	if (offset != strLaunchDirectory.npos) {
 		strLaunchDirectory = strLaunchDirectory.substr(0, offset);
 	}
-#ifdef _WIN32
+#if MTA_WIN
 	if (!NightMTA::SharedUtil::Windows::IsWindows8OrGreater()) {
 		printf("This version of MTA requires Windows 8 or later\n");
 		return 1;
@@ -45,7 +46,7 @@ int mainFunc(int argc, const char* argv[]) {
 		printf(
 			"ERROR: Could not load %s\n"
 			"* Check installed data files.\n"
-#ifdef _WIN32
+#if MTA_WIN
 			"* Check installed Microsoft Visual C++ Redistributable Package (x86).\n"
 #endif
 			, LIB_CORE);
@@ -63,22 +64,27 @@ int mainFunc(int argc, const char* argv[]) {
 	// Call it and return what it returns
 	return pfnEntryPoint(argc, argv);
 }
-
+*/
 int main(int argc, const char* argv[]) {
+	std::cout << NightMTA::SharedUtil::Windows::GetWindowsVersion() << std::endl;
+
+	//auto path = NightMTA::SharedUtil::Path::PathJoin({"test", "folder", "here"});
+	//std::cout<<path<<std::endl;
+
 	for(auto i = 1; i < argc; i++) {
 		if (strcmp(argv[1], "/?") == 0 || strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
 			printf(
 				"Usage: %s [OPTION]\n\n"
 				"  -v                   Shows the program version\n"
 				"  -s                   Run server in silent mode\n"
-#ifndef _WIN32
+#if !MTA_WIN
 				"  -d                   Run server daemonized\n"
 #endif
 				"  -t                   Run server with a simple console\n"
 				"  -f                   Run server with a standard console (Default)\n"
 				"  -n                   Disable the usage of ncurses (For screenlog)\n"
 				"  -u                   Disable output buffering and flush instantly (useful for screenlog)\n"
-#ifndef _WIN32
+#if !MTA_WIN
 				"  -x                   Disable simplified crash reports (To allow core dumps)\n"
 				"  --child-process      Run server without output buffering and with a readyness event\n"
 #endif
@@ -94,10 +100,12 @@ int main(int argc, const char* argv[]) {
 		}
     }
 
+	/*
 	mainFunc(argc, argv);
 
 	// Wait for a key then exit
 	printf("Press enter to continue...\n");
 	std::cin.get();
 	return 0;
+	*/
 }
