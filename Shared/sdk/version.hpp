@@ -1,5 +1,7 @@
 #pragma once
 
+#define MTASA_NAME "NightMTA"
+
 #define MTASA_VERSION_MAJOR         1
 #define MTASA_VERSION_MINOR         6
 #define MTASA_VERSION_MAINTENANCE   0

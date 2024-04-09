@@ -3,14 +3,15 @@
 #include <filesystem>
 #include <string>
 
-//#include <Shared/Core/DynamicLibrary.def.hpp>
-//#include <Shared/Core/WindowsMessages.hpp>
+#include <Shared/sdk/version.hpp>
 #include <Shared/sdk/SharedUtils/Windows.hpp>
 #include <Shared/sdk/SharedUtils/Defines.hpp>
 #include <Shared/sdk/SharedUtils/MTAPlatform.hpp>
-//#include <Shared/sdk/SharedUtils/Path.hpp>
+#include <Shared/sdk/SharedUtils/Path.hpp>
 
 #define LIB_CORE SERVER_BIN_PATH "core" MTA_LIB_SUFFIX MTA_LIB_EXTENSION
+
+namespace Path = NightMTA::SharedUtil::Path;
 
 namespace fs = std::filesystem;
 /*
@@ -66,13 +67,22 @@ int mainFunc(int argc, const char* argv[]) {
 }
 */
 int main(int argc, const char* argv[]) {
-	std::cout << NightMTA::SharedUtil::Windows::GetWindowsVersion() << std::endl;
-
-	//auto path = NightMTA::SharedUtil::Path::PathJoin({"test", "folder", "here"});
-	//std::cout<<path<<std::endl;
+#if MTA_WIN
+	if (!NightMTA::SharedUtil::Windows::IsWin10OrGreater()){
+		MessageBoxA(nullptr, "Windows 10 or newer is required to run " MTASA_NAME "!",
+			MTASA_NAME, MB_HELP | MB_ICONSTOP
+		);
+		return 1;
+	}
+#endif
 
 	for(auto i = 1; i < argc; i++) {
-		if (strcmp(argv[1], "/?") == 0 || strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
+		if (
+#if MTA_WIN
+			strcmp(argv[1], "/?") == 0 ||
+#endif
+			strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0
+		) {
 			printf(
 				"Usage: %s [OPTION]\n\n"
 				"  -v                   Shows the program version\n"
@@ -95,7 +105,7 @@ int main(int argc, const char* argv[]) {
 				"  --httpport [PORT]    Set http port\n"
 				"  --maxplayers [max]   Set maxplayers\n"
 				"  --novoice            Disable voice communication\n"
-			, "");
+			, Path::PathRelative(argv[0], Path::GetSystemCurrentDirectory()).c_str());
 			return 1;
 		}
     }
