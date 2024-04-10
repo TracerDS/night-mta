@@ -1,3 +1,0 @@
-[submodule "vendors/detours"]
-	path = vendors/detours
-	url = git@github.com:TracerDS/night-mta-vendor-detour
