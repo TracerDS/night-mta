@@ -12,8 +12,8 @@ namespace NightMTA::Shared::Core {
         HMODULE m_hModule;
     public:
         using ProcAddr = void(*)();
-
-        virtual ~IDynamicLibrary() noexcept = 0;
+        
+        virtual ~IDynamicLibrary() noexcept = default;
 
         virtual bool Load(const char* path) noexcept = 0;
 

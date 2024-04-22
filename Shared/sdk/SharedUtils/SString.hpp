@@ -5,8 +5,6 @@
 #include <algorithm>
 #include <filesystem>
 
-#include <Shared/sdk/SharedUtils/utf8.hpp>
-
 namespace NightMTA::SharedUtil {
     /**
      * @brief A string class that provides additional functionality like string
@@ -21,6 +19,15 @@ namespace NightMTA::SharedUtil {
          */
         constexpr SString() noexcept : std::string() {}
         
+        /**
+         * @brief Constructs a string from a single character.
+         *
+         * The string will contain only the given character.
+         *
+         * @param c The character to construct the string from
+         */
+        constexpr SString(char c) noexcept : std::string(1, c) {}
+
         /**
          * @brief Constructs a string from the given C-style null-terminated string.
          * 
@@ -44,16 +51,8 @@ namespace NightMTA::SharedUtil {
          *
          * @param string The std::string to construct the string from
          */
-        constexpr SString(const std::string string) noexcept
+        constexpr SString(const std::string& string) noexcept
             : std::string(string) {}
-        
-        /**
-         * Constructs a string from the given std::wstring.
-         *
-         * @param string The std::wstring to construct the string from
-         */
-        constexpr SString(const std::wstring string) noexcept
-            : std::string(UTF::UTF16ToUTF8(string)) {}
 
         /**
          * Constructs a string with the given size and fill character.
@@ -69,28 +68,30 @@ namespace NightMTA::SharedUtil {
          *
          * @param path The std::filesystem::path to construct the string from
          */
-        SString(const std::filesystem::path path) noexcept
+        SString(const std::filesystem::path& path) noexcept
             : std::string(path.string()) {}
         
         /**
-         * Constructs a string from the given printf-style format string and
+         * @brief Constructs a string from the given printf-style format string and
          * variable arguments. The format string is interpreted as in the C
          * `printf` function.
          *
          * @param szFormat The format string
          * @param ... The variable arguments
          */
-        explicit SString(const char* szFormat, ...) noexcept : std::string() {
+        template<int=0>
+        explicit SString(const char* szFormat, ...) noexcept : std::string()
+        {
             if (!szFormat) {
-                return; // No format string, bail out
+                return;
             }
 
             va_list vl;
-            va_start(vl, szFormat); // Begin variable arguments list
+            va_start(vl, szFormat);
 
-            this->vFormat(szFormat, vl); // Format the string
+            this->vFormat(szFormat, vl);
 
-            va_end(vl); // End variable arguments list
+            va_end(vl);
         }
 
         /**
@@ -184,7 +185,7 @@ namespace NightMTA::SharedUtil {
          * @param string The string to assign
          * @return A reference to this string
          */
-        constexpr SString& operator=(SString string) noexcept {
+        constexpr SString& operator=(const SString& string) noexcept {
             this->std::string::operator=(string); // Assign the given string to this string
             return *this; // Return a reference to this string
         }
@@ -197,8 +198,37 @@ namespace NightMTA::SharedUtil {
          * @return A reference to this string
          */
         constexpr SString& operator=(const char* string) noexcept {
-            this->std::string::operator=(string);
-            return *this;
+            return this->operator=(SString(string));
+        }
+
+        SString& operator=(const std::filesystem::path& path) noexcept {
+            return this->operator=(SString(path.string()));
+        }
+
+        constexpr SString operator+(const SString& str) const noexcept {
+            SString out = *this;
+            out.insert(out.end(), str.cbegin(), str.cend());
+            return out;
+        }
+
+        constexpr SString operator+(const char c) const noexcept {
+            return this->operator+(SString(c));
+        }
+
+        SString operator+(const std::filesystem::path& path) const noexcept {
+            return this->operator+(SString(path.string()));
+        }
+
+        constexpr SString& operator+=(const SString& str) noexcept {
+            return this->operator=(this->operator+(str));
+        }
+
+        constexpr SString& operator+=(const char c) noexcept {
+            return this->operator+=(SString(c));
+        }
+
+        SString& operator+=(const std::filesystem::path& str) noexcept {
+            return this->operator+=(SString(str.string()));
         }
 
         /**
@@ -443,7 +473,7 @@ namespace NightMTA::SharedUtil {
             const SString with,
             bool caseInsensitive = false
         ) noexcept {
-            return this->operator=(this->Replace(what, with, caseInsensitive));
+            return this->operator=(std::as_const(*this).Replace(what, with, caseInsensitive));
         }
         
         /**
@@ -514,17 +544,6 @@ namespace NightMTA::SharedUtil {
         }
 
         /**
-         * Creates a new string from the given C-string.
-         *
-         * @param str The C-string to create the new string from
-         * @param length The length of the C-string
-         * @return The newly created string
-         */
-        friend constexpr SString operator""_ss(const char* str, size_t length) noexcept {
-            return SString(str, length); // Create a new string from the given C-string
-        }
-
-        /**
          * Converts this string to a std::filesystem::path.
          *
          * This is a convenience operator that allows you to directly convert a string to a
@@ -537,4 +556,16 @@ namespace NightMTA::SharedUtil {
             return std::filesystem::path(this->c_str()); // Return the resulting path
         }
     };
+    namespace Literals {
+        /**
+         * Creates a new string from the given C-string.
+         *
+         * @param str The C-string to create the new string from
+         * @param length The length of the C-string
+         * @return The newly created string
+         */
+        constexpr SString operator""_ss(const char* str, size_t length) noexcept {
+            return SString(str, length); // Create a new string from the given C-string
+        }
+    }
 }

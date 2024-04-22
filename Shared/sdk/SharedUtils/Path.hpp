@@ -5,10 +5,11 @@
 
 namespace NightMTA::SharedUtil::Path {
 #if MTA_WIN
-    constexpr char PREFERRED_SEPARATOR = '\\';
+    constexpr auto PREFERRED_SEPARATOR = '\\';
 #else
-    constexpr char PREFERRED_SEPARATOR = '/';
+    constexpr auto PREFERRED_SEPARATOR = '/';
 #endif
+
     /**
      * @brief Returns the current working directory.
      *
@@ -71,23 +72,6 @@ namespace NightMTA::SharedUtil::Path {
     }
 
     /**
-     * @brief Joins two paths together
-     *
-     * This function joins two paths together using the standard path
-     * separator. The result of the join is a new path.
-     *
-     * @param path1 The first path
-     * @param path2 The second path
-     * @return The joined path
-     */
-    inline SString PathJoin(const SString path1, const SString path2) noexcept {
-        /*
-         * Join the two paths together using the standard path separator.
-         */
-        return std::filesystem::path(path1) / path2;
-    }
-
-    /**
      * @brief Joins multiple paths together
      *
      * This function joins multiple paths together using the standard path
@@ -109,6 +93,23 @@ namespace NightMTA::SharedUtil::Path {
     }
 
     /**
+     * @brief Joins two paths together
+     *
+     * This function joins two paths together using the standard path
+     * separator. The result of the join is a new path.
+     *
+     * @param path1 The first path
+     * @param path2 The second path
+     * @return The joined path
+     */
+    inline SString PathJoin(const SString path1, const SString path2) noexcept {
+        /*
+         * Join the two paths together using the standard path separator.
+         */
+        return PathJoin({ path1, path2 });
+    }
+
+    /**
      * @brief Replaces all forward and backward slashes in a path with the preferred
      * path separator for the current platform.
      *
@@ -124,6 +125,26 @@ namespace NightMTA::SharedUtil::Path {
     }
 
     /**
+     * @brief Adds a path separator to the start of a path if it doesn't already
+     * have one.
+     *
+     * This function adds a path separator to the start of the given path if it
+     * doesn't already have one. If the path already has a separator at the
+     * start, the path is returned unmodified. The separator added is the
+     * preferred path separator for the current platform, which is defined by
+     * the `PREFERRED_SEPARATOR` constant.
+     *
+     * @param path The path to add a separator to
+     * @return The path with a separator added to the start if necessary
+     */
+    inline SString PathAddSlash(const std::filesystem::path path) noexcept {
+        if(path.is_absolute())
+            return path;
+
+        return SString(".") + PREFERRED_SEPARATOR + path;
+    }
+
+    /**
      * @brief Gets the relative path to a path from a root path
      *
      * This function gets the relative path from the root path to the
@@ -133,8 +154,14 @@ namespace NightMTA::SharedUtil::Path {
      * @param root The root path to get the relative path to
      * @return The relative path
      */
-    inline SString PathRelative(const SString path, const SString root) noexcept {
-        auto p = std::filesystem::relative(path, root).string();
-        return p;
+    inline SString PathRelative(
+        const SString path,
+        const SString root = GetSystemCurrentDirectory()
+    ) noexcept {
+        return PathAddSlash(PathReplaceSlash(std::filesystem::relative(path, root)));
+    }
+
+    inline SString GetRootDirectory(const std::filesystem::path path) noexcept {
+        return PathAddSlash(path.parent_path());
     }
 }

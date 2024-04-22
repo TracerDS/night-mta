@@ -56,7 +56,7 @@ workspace 'NightMTA'
         include 'Server/Launcher'
 
         group 'Vendors'
-        include 'vendors/detours'
+        
 
         group 'Shared'
         include 'Shared'

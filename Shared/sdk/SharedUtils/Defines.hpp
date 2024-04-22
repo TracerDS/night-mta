@@ -114,9 +114,9 @@
 // Location of server crash dumps
 //
 #if MTA_WIN
-    #define SERVER_DUMP_PATH    "dumps"
+    #define SERVER_DUMP_PATH "dumps"
 #else
-    #define SERVER_DUMP_PATH    "mods/deathmatch/dumps"
+    #define SERVER_DUMP_PATH "mods/deathmatch/dumps"
 #endif
 
 #if MTA_WIN

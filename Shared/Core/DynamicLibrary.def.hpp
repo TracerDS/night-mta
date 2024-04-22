@@ -1,15 +1,14 @@
-#include <Shared/sdk/SharedUtils/Defines.hpp>
 #include <Shared/Core/DynamicLibrary.hpp>
 #include <Shared/Core/WindowsMessages.hpp>
 #include <cstdio>
 
 namespace NightMTA::Shared::Core {
-	DynamicLibrary::DynamicLibrary() noexcept {}
-	DynamicLibrary::~DynamicLibrary() noexcept {
+	inline DynamicLibrary::DynamicLibrary() noexcept {}
+	inline DynamicLibrary::~DynamicLibrary() noexcept {
 		this->Unload();
 	}
 
-	void DynamicLibrary::Unload() noexcept {
+	inline void DynamicLibrary::Unload() noexcept {
 		if (!this->m_hModule) return;
 #if MTA_WIN
 		FreeLibrary(this->m_hModule);
@@ -19,11 +18,11 @@ namespace NightMTA::Shared::Core {
 		this->m_hModule = nullptr;
 	}
 	
-	bool DynamicLibrary::IsLoaded() const noexcept {
+	inline bool DynamicLibrary::IsLoaded() const noexcept {
 		return this->m_hModule != nullptr;
 	}
 
-    DynamicLibrary::ProcAddr DynamicLibrary::GetProcAddr(const char* szProcName) noexcept {
+    inline DynamicLibrary::ProcAddr DynamicLibrary::GetProcAddr(const char* szProcName) noexcept {
         if (!this->m_hModule)
             return nullptr;
         
@@ -41,7 +40,7 @@ namespace NightMTA::Shared::Core {
         return reinterpret_cast<ProcAddr>(pFunc);
     }
 
-    bool DynamicLibrary::Load(const char* szFilename) noexcept {
+    inline bool DynamicLibrary::Load(const char* szFilename) noexcept {
         // Unload the previous library
         this->Unload();
 
@@ -51,20 +50,14 @@ namespace NightMTA::Shared::Core {
 
         // Failed?
         if (!m_hModule) {
-            WinMessage msg(GetLastError());
-
-            // Display the error message and exit the process
-            printf("Loading library %s failed (%s)\n", szFilename, msg.c_str());
+            return false;
         }
 #else
         m_hModule = dlopen(szFilename, RTLD_NOW);
 
         // Output error if needed
         if (!m_hModule) {
-            const char* szError = dlerror();
-            fprintf(stderr, "Loading library %s failed", szFilename);
-            if (szError)
-                fprintf(stderr, " (%s)\n", szError);
+            return false;
         }
 #endif
 
