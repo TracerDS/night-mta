@@ -10,6 +10,7 @@
 #include <cstdarg>
 #include <algorithm>
 #include <filesystem>
+#include <Shared/sdk/SharedUtils/UTF8.hpp>
 
 namespace NightMTA::Shared {
     /**
@@ -40,6 +41,7 @@ namespace NightMTA::Shared {
          * @param string The C-style null-terminated string
          */
         constexpr SString(const char* string) noexcept : std::string(string) {}
+        SString(const wchar_t* string) noexcept : std::string(UTF8::ToUTF8(string)) {}
 
         /**
          * @brief Constructs a string from the given C-style null-terminated string
@@ -50,6 +52,9 @@ namespace NightMTA::Shared {
          */
         constexpr SString(const char* string, const std::size_t size) noexcept
             : std::string(string, size) {}
+            
+        SString(const wchar_t* string, const std::size_t size) noexcept
+            : std::string(UTF8::ToUTF8(std::wstring(string, size))) {}
 
         
         /**
@@ -60,13 +65,16 @@ namespace NightMTA::Shared {
         constexpr SString(const std::string& string) noexcept
             : std::string(string) {}
 
+        SString(const std::wstring& string) noexcept
+            : std::string(UTF8::ToUTF8(string)) {}
+
         /**
          * Constructs a string with the given size and fill character.
          *
          * @param count The size of the string to create
          * @param character The character to fill the string with
          */
-        constexpr SString(const std::size_t count, const char character) noexcept
+        constexpr SString(const std::size_t count, const char& character) noexcept
             : std::string(count, character) {}
             
         /**

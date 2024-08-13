@@ -83,6 +83,14 @@ namespace NightMTA::Shared::File {
     }
 
     inline bool WriteFile(const SString& path, const SString& message) noexcept {
+        std::ofstream file(path);
+        if (!file) return false;
+
+        file.write(message.c_str(), message.size());
+        return file.good();
+    }
+
+    inline bool AppendFile(const SString& path, const SString& message) noexcept {
         std::ofstream file(path, std::ios::app);
         if (!file) return false;
 

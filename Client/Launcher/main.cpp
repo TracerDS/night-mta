@@ -67,13 +67,13 @@ int WINAPI WinMain (
 
     Path::SetCurrentDirectory(mtaRootPath);
 
-    Shared::Misc::DynamicLibrary library;
+    Shared::DynamicLibrary::DynamicLibrary library;
     if (!library.Load(loaderPath)) {
         Windows::WinMessageBox("Cannot find " + loaderPath.Quoted(), MB_ICONERROR);
         return 1;
     }
 
-    auto DoWinMain = Shared::Misc::GetProcAddress<int(*)(HINSTANCE, HINSTANCE, LPSTR, int)>(
+    auto DoWinMain = Shared::DynamicLibrary::GetProcAddress<int(*)(HINSTANCE, HINSTANCE, LPSTR, int)>(
         library, "DoWinMain"
     );
 

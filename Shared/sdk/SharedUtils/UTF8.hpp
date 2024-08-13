@@ -8,53 +8,56 @@
 
 #include <string>
 #include <cstdlib>
-#include <Shared/sdk/SharedUtils/Windows.hpp>
+#include <Windows.h>
 
 namespace NightMTA::Shared::UTF8 {
+    constexpr std::wstring FromUTF8(const std::wstring& string) noexcept { return string; }
     inline std::wstring FromUTF8(const std::string& string) noexcept {
         std::wstring data;
         if(string.empty())
             return data;
 
+        const auto stringSize = string.size();
 #if MTA_WIN
         const auto size = MultiByteToWideChar(
-            CP_UTF8, 0, string.c_str(), static_cast<int>(string.size()),
+            CP_UTF8, 0, string.c_str(), static_cast<int>(stringSize),
             nullptr, 0
         );
-        data.reserve(size);
+        data.resize(size + 1);
         MultiByteToWideChar(
-            CP_UTF8, 0, string.c_str(), static_cast<int>(string.size()),
+            CP_UTF8, 0, string.c_str(), static_cast<int>(stringSize),
             data.data(), size
         );
 #else
-        const auto size = std::mbstowcs(nullptr, string.c_str(), string.size()) + 1;
-        data.reserve(size);
-        std::mbstowcs(data.data(), string.c_str(), string.size());
+        const auto size = std::mbstowcs(nullptr, string.c_str(), stringSize) + 1;
+        data.resize(size + 1);
+        std::mbstowcs(data.data(), string.c_str(), stringSize);
 #endif
-
         return data;
     }
+    constexpr std::string ToUTF8(const std::string& string) noexcept { return string; }
     inline std::string ToUTF8(const std::wstring& string) noexcept {
         std::string data;
         if(string.empty())
             return data;
 
+        const auto stringSize = string.size();
 #if MTA_WIN
         const auto size = WideCharToMultiByte(
-            CP_UTF8, 0, string.c_str(), static_cast<int>(string.size()),
+            CP_UTF8, 0, string.c_str(), static_cast<int>(stringSize),
             nullptr, 0, nullptr, nullptr
         );
-        data.reserve(size);
+
+        data.resize(size);
         WideCharToMultiByte(
-            CP_UTF8, 0, string.c_str(), static_cast<int>(string.size()),
+            CP_UTF8, 0, string.c_str(), static_cast<int>(stringSize),
             data.data(), size, nullptr, nullptr
         );
 #else
-        const auto size = std::wcstombs(nullptr, string.c_str(), string.size()) + 1;
-        data.reserve(size);
-        std::wcstombs(data.data(), string.c_str(), string.size());
+        const auto size = std::wcstombs(nullptr, string.c_str(), stringSize) + 1;
+        data.resize(size);
+        std::wcstombs(data.data(), string.c_str(), stringSize);
 #endif
-
         return data;
     }
 }

@@ -1,9 +1,12 @@
 #pragma once
 
+#define MTA_CLIENT
+
 #include <Shared/sdk/SharedUtils/SString.hpp>
 #include <Shared/sdk/SharedUtils/Path.hpp>
 #include <Shared/sdk/SharedUtils/File.hpp>
 #include <Shared/sdk/SharedUtils/Time.hpp>
+#include <Shared/sdk/SharedUtils/Misc.hpp>
 
 #ifdef OutputDebugString
 #   undef OutputDebugString

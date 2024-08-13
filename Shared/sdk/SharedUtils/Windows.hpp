@@ -13,10 +13,8 @@
 #include <Windows.h>
 
 #include <Shared/sdk/version.hpp>
-#include <Shared/sdk/SharedUtils/Misc.hpp>
-#include <Shared/sdk/SharedUtils/SString.hpp>
-
-#include <Shobjidl.h>
+#include <Shared/sdk/SharedUtils/DynamicLibrary.hpp>
+#include <ShObjIdl_core.h>
 
 namespace NightMTA::Shared::Windows {
     /**
@@ -122,7 +120,9 @@ namespace NightMTA::Shared::Windows {
             using RtlGetVersionPtr = HRESULT(WINAPI*)(OSVERSIONINFOA *lpVersionInformation);
 
             // get RtlGetVersion function from ntdll.dll
-            const static auto RtlGetVersion = Misc::GetProcAddress<RtlGetVersionPtr>("ntdll.dll", "RtlGetVersion");
+            const static auto RtlGetVersion = DynamicLibrary::GetProcAddress<RtlGetVersionPtr>(
+                "ntdll.dll", "RtlGetVersion"
+            );
             if (!RtlGetVersion)
                 return {};
 
@@ -260,7 +260,7 @@ namespace NightMTA::Shared::Windows {
     inline void SetAppID(const std::wstring& name) noexcept {
         if (SetCurrentProcessExplicitAppUserModelID(name.c_str()) != S_OK)
         {
-#ifdef MTA_NO_DEBUG
+#ifdef _DEBUG
             WinMessageBox(
                 "Cannot set app model ID!",
                 Shared::Version::MTA_NAME + " - DEBUG",
