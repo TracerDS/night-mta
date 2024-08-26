@@ -1,5 +1,7 @@
 @echo off
 
+git submodule init
+
 premake5 vs2022
 
 rem Create a shortcut to the solution - http://superuser.com/questions/392061/how-to-make-a-shortcut-from-cmd

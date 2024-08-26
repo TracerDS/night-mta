@@ -22,7 +22,21 @@ workspace ( SolutionName )
 	includedirs {
 		'.',
 		'Shared',
-		'vendor',
+		'vendors',
+		'vendors/OpenSSL/include',
+	}
+
+	libdirs {
+		'vendors/OpenSSL/build/lib',
+		'vendors/OpenSSL/build/build',
+		'vendors/Luau/build',
+	}
+
+	links {
+		'libssl',
+		'libcrypto',
+		--'libLuau.Compiler.a',
+		--'libLuau.VM.a',
 	}
 
 	filter 'platforms:x86'
@@ -79,4 +93,4 @@ workspace ( SolutionName )
 		group 'Shared'
 		include 'Shared'
 
-		group 'Vendor'
+		group 'Vendors'

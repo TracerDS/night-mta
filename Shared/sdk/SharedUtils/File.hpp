@@ -22,7 +22,7 @@
 namespace NightMTA::Shared::File {
     inline bool CreateDirectory(const SString& path) noexcept {
         if(Path::DirectoryExists(path))
-            return false;
+            return true;
 
         std::error_code err;
         return std::filesystem::create_directory(path, err);

@@ -2,7 +2,7 @@ project 'Loader'
 	language 'C++'
 	kind 'SharedLib'
 	targetname 'loader'
-	targetdir(buildpath('mta'))
+	targetdir(buildpath('MTA'))
 
 	filter 'system:windows'
         -- https://stackoverflow.com/questions/25081033/what-safesehno-option-actually-do

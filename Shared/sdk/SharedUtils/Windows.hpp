@@ -120,7 +120,7 @@ namespace NightMTA::Shared::Windows {
             using RtlGetVersionPtr = HRESULT(WINAPI*)(OSVERSIONINFOA *lpVersionInformation);
 
             // get RtlGetVersion function from ntdll.dll
-            const static auto RtlGetVersion = DynamicLibrary::GetProcAddress<RtlGetVersionPtr>(
+            const static auto RtlGetVersion = DynamicLibrary::GetFuncAddress<RtlGetVersionPtr>(
                 "ntdll.dll", "RtlGetVersion"
             );
             if (!RtlGetVersion)

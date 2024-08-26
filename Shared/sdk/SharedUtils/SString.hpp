@@ -553,6 +553,26 @@ namespace NightMTA::Shared {
             return "\"" + *this  + "\"";
         }
 
+        constexpr bool StartsWith(const SString& value) const noexcept {
+            if (value.size() > size())
+                return false;
+            return substr(0, value.size()) == value;
+        }
+
+        constexpr bool StartsWith(const char& value) const noexcept {
+            return StartsWith(SString(value));
+        }
+
+        constexpr bool EndsWith(const SString& value) const noexcept {
+            if (value.size() > size())
+                return false;
+            return substr(size() - value.size(), value.size()) == value;
+        }
+
+        constexpr bool EndsWith(const char& value) const noexcept {
+            return EndsWith(SString(value));
+        }
+
         /**
          * Converts this string to a std::filesystem::path.
          *

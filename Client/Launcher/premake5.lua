@@ -12,8 +12,6 @@ project 'Client Launcher'
 	pchheader 'StdInc.hpp'
 	pchsource 'StdInc.cpp'
 
-	--entrypoint 'WinMainCRTStartup'
-
 	vpaths {
 		['Headers/*'] = '**.hpp',
 		['Sources/*'] = '**.cpp',

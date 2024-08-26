@@ -21,7 +21,7 @@ namespace NightMTA::Shared::EventLog {
         }
 
         auto logFilePath = Path::PathJoin({
-            Path::GetCurrentExePath(), "mta", "logs", "logfile.txt"
+            Path::GetCurrentExePath(), "MTA", "logs", "logfile.txt"
         });
 
         static constexpr auto formatString = "%s - %s";
@@ -30,7 +30,7 @@ namespace NightMTA::Shared::EventLog {
             Time::GetCurrentTimeString(true, false, true).c_str(),
             message.c_str()
         );
-        File::WriteFile(logFilePath, formattedMsg);
+        File::AppendFile(logFilePath, formattedMsg);
 #ifdef MTA_DEBUG
         OutputDebugStringA(message);
 #endif

@@ -5,10 +5,13 @@
 
 namespace NightMTA::Shared::DynamicLibrary {
     class DynamicLibrary {
-#if !MTA_WIN
-        using HMODULE = void*;
+    public:
+#if MTA_WIN
+        using DllHandle = HMODULE;
+#else
+        using DllHandle = void*;
 #endif
-        HMODULE m_library{ nullptr };
+        DllHandle m_library{ nullptr };
     public:
         constexpr DynamicLibrary() noexcept {}
         DynamicLibrary(const SString& path) noexcept { Load(path); }
@@ -30,7 +33,7 @@ namespace NightMTA::Shared::DynamicLibrary {
 #if MTA_WIN
             m_library = LoadLibraryA(path.c_str());
 #else
-            m_library = dlopen(handle, RTLD_LOCAL | RTLD_LAZY);
+            m_library = dlopen(path.c_str(), RTLD_LOCAL | RTLD_LAZY);
 #endif
             return m_library != nullptr;
         }
@@ -44,7 +47,17 @@ namespace NightMTA::Shared::DynamicLibrary {
             m_library = nullptr;
             return true;
         }
+
+        template <typename T>
+        T GetFuncAddress(const char* name) noexcept {
+            return GetProcAddr<T>(m_library, name);
+        }
     };
+
+    template <typename T>
+    inline T GetProcAddr(const DynamicLibrary::DllHandle& handle, const char* name) noexcept {
+        return reinterpret_cast<T>(::GetProcAddress(handle, name));
+    }
 
     /**
      * @brief Retrieves a function pointer from a shared library
@@ -56,37 +69,18 @@ namespace NightMTA::Shared::DynamicLibrary {
      * @return Function pointer of type T or nullptr on error
      */
     template <typename T = void*>
-    inline T GetProcAddress(const char* handle, const char* name) noexcept {
+    inline T GetFuncAddress(const char* handle, const char* name) noexcept {
 #if MTA_WIN
         // Retrieve the module handle
         const auto moduleHandle = GetModuleHandleA(handle);
         if (!moduleHandle) return 0; // Module not found
 
         // Retrieve function pointer from module
-        const auto proc = ::GetProcAddress(moduleHandle, name);
-        if (!proc) return 0; // Function not found
-
-        return reinterpret_cast<T>(proc); // Return function pointer
+        return GetProcAddr<T>(moduleHandle, name);
 #else
-        // Open the shared library
-        // RTLD_LOCAL: unload library when last reference is closed
-        // RTLD_LAZY: load symbols only when they are used
-        auto dynamicLib = dlopen(handle, RTLD_LOCAL | RTLD_LAZY);
-        if(!dynamicLib) return 0; // Could not open shared library
-
-        // Retrieve function pointer from shared library
-        const auto func = GetProcAddress(dynamicLib, name);
-
-        // Close shared library
-        dlclose(dynamicLib);
-
-        // Return function pointer
-        return reinterpret_cast<T>(func);
+        DynamicLibrary lib(handle);
+        if (!lib.IsLoaded()) return 0;
+        return lib.GetFuncAddress<T>(name);
 #endif
-    }
-
-    template <typename T = void*>
-    inline T GetProcAddress(const DynamicLibrary& handle, const char* name) noexcept {
-        return reinterpret_cast<T>(GetProcAddress(handle.Handle(), name));
     }
 }

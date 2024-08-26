@@ -1,0 +1,6 @@
+[submodule "vendors/Luau"]
+	path = vendors/Luau
+	url = git@github.com:TracerDS/night-mta-luau-vendor.git
+[submodule "vendors/OpenSSL"]
+	path = vendors/OpenSSL
+	url = git@github.com:TracerDS/night-mta-openssl-vendor.git

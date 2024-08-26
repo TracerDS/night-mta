@@ -1,14 +1,5 @@
 #include "StdInc.hpp"
 
-#include <Shared/sdk/version.hpp>
-#include <Shared/sdk/SharedUtils/Windows.hpp>
-#include <Shared/sdk/SharedUtils/UTF8.hpp>
-#include <Shared/sdk/SharedUtils/Path.hpp>
-#include <Shared/sdk/SharedUtils/EventLog.hpp>
-#include <Shared/sdk/SharedUtils/Time.hpp>
-
-#include <sdk/dirStructure.hpp>
-
 namespace Shared = NightMTA::Shared;
 namespace Windows = Shared::Windows;
 namespace Path = Shared::Path;
@@ -55,8 +46,11 @@ int WINAPI WinMain (
     SetErrorMode(SEM_FAILCRITICALERRORS);
 
     if (!NightMTA::Client::VerifyMTAStructure()) {
-        Windows::WinMessageBox("MTA structure is corrupted! Please reinstall.", MB_ICONERROR);
-        return 1;
+        Windows::WinMessageBox("MTA structure is corrupted! Fixing...", MB_ICONWARNING);
+        if (!NightMTA::Client::CreateMTAStructure()) {
+            Windows::WinMessageBox("Cannot create mta structure! Please reinstall.", MB_ICONERROR);
+            return 1;
+        }
     }
 
     SString loaderFilename = "loader" MTA_LIB_SUFFIX ".dll";
@@ -68,18 +62,20 @@ int WINAPI WinMain (
     Path::SetCurrentDirectory(mtaRootPath);
 
     Shared::DynamicLibrary::DynamicLibrary library;
+    
     if (!library.Load(loaderPath)) {
         Windows::WinMessageBox("Cannot find " + loaderPath.Quoted(), MB_ICONERROR);
         return 1;
     }
 
-    auto DoWinMain = Shared::DynamicLibrary::GetProcAddress<int(*)(HINSTANCE, HINSTANCE, LPSTR, int)>(
-        library, "DoWinMain"
-    );
+    using DoWinMain_t = int(*)(HINSTANCE, HINSTANCE, LPSTR, int);
+
+    auto DoWinMain = library.GetFuncAddress<DoWinMain_t>("DoWinMain");
 
     if (!DoWinMain) {
         Windows::WinMessageBox(loaderFilename.Quoted() + " is corrupted", MB_ICONERROR);
         return 1;
     }
+
     return DoWinMain(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
 }

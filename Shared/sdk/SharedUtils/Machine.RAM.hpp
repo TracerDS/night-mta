@@ -22,7 +22,7 @@ namespace NightMTA::Shared::Machine {
             SString m_bankName;
             SString m_deviceLocator;
         public:
-            constexpr RAMStick (
+            RAMStick (
                 SString name,
                 SString caption,
                 SString description,

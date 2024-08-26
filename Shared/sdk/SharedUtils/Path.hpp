@@ -8,6 +8,13 @@
 
 #include <Shared/sdk/SharedUtils/SString.hpp>
 
+#ifdef GetCurrentDirectory
+#   undef GetCurrentDirectory
+#endif
+#ifdef SetCurrentDirectory
+#   undef SetCurrentDirectory
+#endif
+
 namespace NightMTA::Shared::Path {
 #if MTA_WIN
     constexpr char PREFERRED_SEPARATOR = '\\';
@@ -25,7 +32,7 @@ namespace NightMTA::Shared::Path {
      * @return The current working directory of the system or an empty path
      * if an error occurred
      */
-    inline std::filesystem::path GetSystemCurrentDirectory() noexcept {
+    inline std::filesystem::path GetCurrentDirectory() noexcept {
         /*
          * Retrieve the current working directory of the system.
          * If an error occurs, an error code is saved into `err`.
@@ -167,7 +174,7 @@ namespace NightMTA::Shared::Path {
      */
     inline SString PathRelative(
         const SString path,
-        const SString root = GetSystemCurrentDirectory()
+        const SString root = GetCurrentDirectory()
     ) noexcept {
         return PathAddSlash(PathReplaceSlash(std::filesystem::relative(path, root)));
     }
